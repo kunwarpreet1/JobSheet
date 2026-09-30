@@ -36,6 +36,7 @@ export default function JobSheetDetailScreen({ jobSheetId, onBack, isTabletView 
     jobSheets,
     setJobSheets,
     deleteJobSheet,
+    deleteStageFromJobSheet,
     masterData,
     updateTaskStatus,
     updateQCBox,
@@ -367,6 +368,29 @@ export default function JobSheetDetailScreen({ jobSheetId, onBack, isTabletView 
       status: 'ONGOING',
     });
     Alert.alert('🚀 Task Started', `"${task.name}" is now ONGOING. Notification sent to ${task.assignedTo}.`);
+  };
+
+  const handleDeleteCurrentTask = () => {
+    if (!selectedTask || !sheet) return;
+    Alert.alert(
+      'Delete Assigned Task',
+      `Are you sure you want to remove "${selectedTask.name}" from Job Sheet ${sheet.id}?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await deleteStageFromJobSheet(sheet.id, selectedTask.id);
+              setShowTaskModal(false);
+            } catch (err) {
+              Alert.alert('Error', err.message || 'Failed to delete task.');
+            }
+          },
+        },
+      ]
+    );
   };
 
   const handleChangeManager = (newManager) => {
@@ -711,6 +735,17 @@ export default function JobSheetDetailScreen({ jobSheetId, onBack, isTabletView 
                   Read-Only: Assigned to {selectedTask?.assignedTo || 'Other'}. Only the assigned employee can mark this DONE.
                 </Text>
               </View>
+            )}
+
+            {(canManageJobSheet || isCurrentTaskAssigned || role === 'OWNER') && (
+              <TouchableOpacity
+                style={styles.deleteTaskModalBtn}
+                onPress={handleDeleteCurrentTask}
+                activeOpacity={0.7}
+              >
+                <VectorIcon name="trash" size={14} color="#EF4444" />
+                <Text style={styles.deleteTaskModalBtnText}>Delete This Task</Text>
+              </TouchableOpacity>
             )}
 
             <TouchableOpacity style={styles.closeModalBtn} onPress={() => setShowTaskModal(false)}>
@@ -1449,5 +1484,23 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#92400E',
     lineHeight: 16,
+  },
+  deleteTaskModalBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingVertical: 12,
+    borderRadius: 12,
+    backgroundColor: '#FEF2F2',
+    borderWidth: 1,
+    borderColor: '#FECACA',
+    marginTop: 10,
+    marginBottom: 4,
+  },
+  deleteTaskModalBtnText: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#EF4444',
   },
 });

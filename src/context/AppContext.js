@@ -42,6 +42,7 @@ import {
   removeAllStagesApi,
   deleteNotificationApi,
   deleteAllNotificationsApi,
+  updateProfileApi,
 } from '../services/apiClient';
 import {
   registerDeviceForUser,
@@ -667,14 +668,10 @@ export function AppProvider({ children }) {
     }
   };
 
-  // 2. Send Mobile Verification OTP & Trigger Drop-down Notification Banner
+  // 2. Send Mobile Verification OTP
   const sendOtp = async (mobileNumber) => {
     try {
       const res = await sendOtpApi({ mobileNumber });
-      if (res.success && res.otp) {
-        // Dispatches both native system notification & drop-down in-app banner
-        displayOtpNotification({ otp: res.otp, mobileNumber: res.mobileNumber });
-      }
       return res;
     } catch (err) {
       return { success: false, message: err.message || 'Failed to send OTP' };
@@ -1737,8 +1734,14 @@ export function AppProvider({ children }) {
     }
   };
 
-  // Delete a specific stage from a Job Sheet (Owner only, Not Started status)
+  // Delete a specific stage or unassign task from a Job Sheet
   const deleteStageFromJobSheet = async (jobSheetId, stageId) => {
+    // If it is a manager duty task -> unassign manager
+    if (stageId && (String(stageId).startsWith('mgr-') || String(stageId).startsWith('TASK-MGR-'))) {
+      updateJobSheetManager(jobSheetId, 'Unassigned', '');
+      return;
+    }
+
     // If Employee: unassign the task / remove from their workspace so dashboard immediately updates
     // If Owner: delete the stage
     setJobSheets((prev) =>
@@ -1797,6 +1800,52 @@ export function AppProvider({ children }) {
     } catch (err) {
       console.warn('[deleteStageFromJobSheet Warning]:', err.message);
     }
+  };
+
+  // Update Current User Profile Name
+  const updateUserName = async (newName) => {
+    const cleanName = (newName || '').trim();
+    if (!cleanName) return { success: false, message: 'Name cannot be empty' };
+
+    const oldName = currentUser?.name || activeEmployee;
+    const updatedUser = {
+      ...currentUser,
+      name: cleanName,
+    };
+
+    setCurrentUser(updatedUser);
+    saveSessionUser(updatedUser);
+
+    if (role === 'EMPLOYEE') {
+      setActiveEmployee(cleanName);
+      try {
+        await AsyncStorage.setItem('jobsheetflow_active_employee', cleanName);
+      } catch (e) {}
+    }
+
+    if (oldName && oldName !== cleanName) {
+      setJobSheets((prev) =>
+        prev.map((sheet) => ({
+          ...sheet,
+          manager: sheet.manager === oldName ? cleanName : sheet.manager,
+          stages: (sheet.stages || []).map((s) => ({
+            ...s,
+            assignedTo: s.assignedTo === oldName ? cleanName : s.assignedTo,
+          })),
+        }))
+      );
+    }
+
+    try {
+      const empId = currentUser?.employeeId || (role === 'OWNER' ? '4821' : null);
+      if (empId) {
+        await updateProfileApi({ employeeId: empId, name: cleanName });
+      }
+    } catch (err) {
+      console.warn('[updateUserName backend error]:', err.message);
+    }
+
+    return { success: true };
   };
 
   // Remove all assigned stages from a Job Sheet (Owner only)
@@ -1895,6 +1944,7 @@ export function AppProvider({ children }) {
         replace,
         addJobSheet,
         updateJobSheetManager,
+        updateUserName,
         deleteJobSheet,
         deleteStageFromJobSheet,
         removeAllStagesFromJobSheet,

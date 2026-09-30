@@ -391,10 +391,51 @@ async function register(req, res) {
   }
 }
 
+/**
+ * 7. Update Employee / Owner Profile Name
+ * PUT /api/auth/profile
+ * Body: { employeeId: "1234", name: "New Name" }
+ */
+async function updateProfile(req, res) {
+  try {
+    const { employeeId, name } = req.body;
+    const cleanId = (employeeId || '').toString().trim();
+    const cleanName = (name || '').toString().trim();
+
+    if (!cleanId || !cleanName) {
+      return res.status(400).json({ success: false, message: 'Employee ID and name are required' });
+    }
+
+    const { data: updated, error } = await supabase
+      .from('employees')
+      .update({
+        name: cleanName,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('employee_id', cleanId)
+      .select()
+      .single();
+
+    if (error) {
+      return res.status(500).json({ success: false, message: error.message });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: 'Profile updated successfully',
+      employee: formatEmployee(updated),
+    });
+  } catch (err) {
+    console.error('[updateProfile Error]:', err.message);
+    return res.status(500).json({ success: false, message: err.message });
+  }
+}
+
 module.exports = {
   loginByEmployeeId,
   sendOtp,
   verifyOtp,
   setupOwnerProfile,
   register,
+  updateProfile,
 };

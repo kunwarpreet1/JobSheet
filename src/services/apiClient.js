@@ -92,6 +92,16 @@ export async function setupOwnerProfileApi({ name, mobileNumber }) {
   });
 }
 
+/**
+ * 5. Update Employee / Owner Profile (name)
+ */
+export async function updateProfileApi({ employeeId, name }) {
+  return request('/api/auth/profile', {
+    method: 'PUT',
+    body: JSON.stringify({ employeeId, name }),
+  });
+}
+
 
 /**
  * 6. Register new Employee (name, mobileNumber, password)

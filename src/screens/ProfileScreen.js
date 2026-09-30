@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -6,6 +6,9 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert,
+  TextInput,
+  Modal,
+  ActivityIndicator,
 } from 'react-native';
 import { useApp } from '../context/AppContext';
 import VectorIcon from '../components/VectorIcon';
@@ -22,13 +25,45 @@ export default function ProfileScreen() {
     setActiveTab,
     jobSheets,
     goBack,
+    updateUserName,
   } = useApp();
+
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editedName, setEditedName] = useState('');
+  const [isSavingName, setIsSavingName] = useState(false);
 
   const isOwner = role === 'OWNER';
   const isEmployee = role === 'EMPLOYEE';
   const displayMobile = role === 'GUEST'
     ? 'NA'
     : currentUser?.mobileNumber || currentUser?.phone || (isOwner ? '+91 98765 43210' : 'NA');
+
+  const handleOpenEdit = () => {
+    setEditedName(currentUser?.name || activeEmployee || '');
+    setShowEditModal(true);
+  };
+
+  const handleSaveName = async () => {
+    const trimmed = editedName.trim();
+    if (!trimmed) {
+      Alert.alert('Invalid Name', 'Name cannot be empty.');
+      return;
+    }
+    setIsSavingName(true);
+    try {
+      const res = await updateUserName(trimmed);
+      if (res && res.success) {
+        setShowEditModal(false);
+        Alert.alert('Success', 'Profile name updated successfully.');
+      } else {
+        Alert.alert('Error', res?.message || 'Failed to update name.');
+      }
+    } catch (err) {
+      Alert.alert('Error', err.message || 'An error occurred.');
+    } finally {
+      setIsSavingName(false);
+    }
+  };
 
   // Calculate task statistics for employee (including assigned stages + manager duties)
   const myTasks = getEmployeeTasks(jobSheets, currentUser, activeEmployee);
@@ -88,13 +123,20 @@ export default function ProfileScreen() {
           </View>
         </View>
 
-        <Text style={styles.userName}>
-          {isOwner
-            ? currentUser?.name || 'Kunwarpreet Singh (Owner)'
-            : isEmployee
-              ? currentUser?.name || activeEmployee
-              : 'Guest User'}
-        </Text>
+        <View style={styles.nameHeaderRow}>
+          <Text style={styles.userName}>
+            {isOwner
+              ? currentUser?.name || 'Kunwarpreet Singh (Owner)'
+              : isEmployee
+                ? currentUser?.name || activeEmployee
+                : 'Guest User'}
+          </Text>
+          {(isOwner || isEmployee) && (
+            <TouchableOpacity style={styles.editBtnSmall} onPress={handleOpenEdit} activeOpacity={0.7}>
+              <VectorIcon name="edit" size={13} color="#6366F1" />
+            </TouchableOpacity>
+          )}
+        </View>
 
         <View
           style={[
@@ -144,6 +186,12 @@ export default function ProfileScreen() {
               {currentUser?.name || (isOwner ? 'Kunwarpreet Singh' : "Guest")}
             </Text>
           </View>
+          {(isOwner || isEmployee) && (
+            <TouchableOpacity style={styles.editActionBtn} onPress={handleOpenEdit} activeOpacity={0.7}>
+              <VectorIcon name="edit" size={13} color="#6366F1" />
+              <Text style={styles.editActionBtnText}>Edit</Text>
+            </TouchableOpacity>
+          )}
         </View>
 
         <View style={styles.infoRow}>
@@ -289,6 +337,64 @@ export default function ProfileScreen() {
       <Text style={styles.versionFooter}>
         JobSheetFlow v2.0 • Unified Production Tracking System
       </Text>
+
+      {/* EDIT NAME MODAL */}
+      <Modal
+        visible={showEditModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowEditModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <View style={styles.modalHeader}>
+              <View style={styles.modalIconBox}>
+                <VectorIcon name="edit" size={20} color="#6366F1" />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.modalTitle}>Edit Profile Name</Text>
+                <Text style={styles.modalSubtitle}>Update your display name across the workspace</Text>
+              </View>
+            </View>
+
+            <Text style={styles.inputLabel}>FULL NAME</Text>
+            <View style={styles.textInputBox}>
+              <VectorIcon name="user" size={18} color="#6366F1" />
+              <TextInput
+                style={styles.textInput}
+                value={editedName}
+                onChangeText={setEditedName}
+                placeholder="Enter your name"
+                placeholderTextColor="#94A3B8"
+                autoFocus
+              />
+            </View>
+
+            <View style={styles.modalBtnRow}>
+              <TouchableOpacity
+                style={styles.cancelModalBtn}
+                onPress={() => setShowEditModal(false)}
+                disabled={isSavingName}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.cancelModalBtnText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.saveModalBtn, isSavingName && { opacity: 0.7 }]}
+                onPress={handleSaveName}
+                disabled={isSavingName}
+                activeOpacity={0.8}
+              >
+                {isSavingName ? (
+                  <ActivityIndicator color="#FFFFFF" size="small" />
+                ) : (
+                  <Text style={styles.saveModalBtnText}>Save Changes</Text>
+                )}
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </ScrollView>
   );
 }
@@ -541,5 +647,134 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: '#94A3B8',
     marginTop: SPACING.sm,
+  },
+  nameHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    marginTop: 4,
+  },
+  editBtnSmall: {
+    padding: 5,
+    borderRadius: 8,
+    backgroundColor: '#EEF2FF',
+    borderWidth: 1,
+    borderColor: '#C7D2FE',
+  },
+  editActionBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 8,
+    backgroundColor: '#EEF2FF',
+    borderWidth: 1,
+    borderColor: '#C7D2FE',
+  },
+  editActionBtnText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#4F46E5',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(15, 23, 42, 0.65)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: SPACING.lg,
+  },
+  modalCard: {
+    width: '100%',
+    maxWidth: 420,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: SPACING.xl,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.2,
+    shadowRadius: 20,
+    elevation: 10,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginBottom: SPACING.lg,
+  },
+  modalIconBox: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    backgroundColor: '#EEF2FF',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: '#0F172A',
+  },
+  modalSubtitle: {
+    fontSize: 12,
+    color: '#64748B',
+    marginTop: 2,
+  },
+  inputLabel: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#475569',
+    letterSpacing: 0.5,
+    marginBottom: 6,
+  },
+  textInputBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    backgroundColor: '#F8FAFC',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    marginBottom: SPACING.xl,
+  },
+  textInput: {
+    flex: 1,
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#0F172A',
+    padding: 0,
+  },
+  modalBtnRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  cancelModalBtn: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 12,
+    backgroundColor: '#F1F5F9',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  cancelModalBtnText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#64748B',
+  },
+  saveModalBtn: {
+    flex: 1.5,
+    paddingVertical: 12,
+    borderRadius: 12,
+    backgroundColor: '#4F46E5',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  saveModalBtnText: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#FFFFFF',
   },
 });

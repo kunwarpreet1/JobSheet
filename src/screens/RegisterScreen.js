@@ -105,6 +105,7 @@ export default function RegisterScreen({ onBack }) {
     try {
       const res = await sendOtp(cleanMobile);
       if (res && res.success) {
+        if (res.otp) setOtp(res.otp);
         setStep('OTP');
       } else {
         setErrorMsg((res && res.message) || 'Failed to dispatch verification code.');
@@ -125,6 +126,7 @@ export default function RegisterScreen({ onBack }) {
     try {
       const res = await sendOtp(cleanMobile);
       if (res && res.success) {
+        if (res.otp) setOtp(res.otp);
         setTimer(30);
         setCanResend(false);
         if (timerRef.current) clearInterval(timerRef.current);

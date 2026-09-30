@@ -50,20 +50,18 @@ export default function MyTasksScreen() {
     if (e && e.stopPropagation) {
       e.stopPropagation();
     }
-    if (task.isManagerDuty) {
-      Alert.alert(
-        'Manager Assignment',
-        `You are assigned as the Production Manager for Job Sheet ${task.jobSheetId}. Only the Owner can reassign the Production Manager role.`
-      );
-      return;
-    }
+    const alertTitle = task.isManagerDuty ? 'Remove Manager Assignment' : 'Delete Assigned Task';
+    const alertMessage = task.isManagerDuty
+      ? `Are you sure you want to remove your Production Manager duty for Job Sheet ${task.jobSheetId}?`
+      : `Are you sure you want to remove "${task.name}" for Job Sheet ${task.jobSheetId}?`;
+
     Alert.alert(
-      'Remove Task',
-      `Are you sure you want to remove "${task.name}" for Job Sheet ${task.jobSheetId}?`,
+      alertTitle,
+      alertMessage,
       [
         { text: 'Cancel', style: 'cancel' },
         {
-          text: 'Remove',
+          text: 'Delete',
           style: 'destructive',
           onPress: async () => {
             try {
@@ -140,16 +138,15 @@ export default function MyTasksScreen() {
               </View>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                 <StatusBadge status={task.status} />
-                {!task.isManagerDuty && (
-                  <TouchableOpacity
-                    style={styles.deleteCardBtn}
-                    onPress={(e) => handleDeleteTask(task, e)}
-                    hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                    activeOpacity={0.7}
-                  >
-                    <VectorIcon name="trash" size={13} color="#EF4444" />
-                  </TouchableOpacity>
-                )}
+                <TouchableOpacity
+                  style={styles.deleteCardBtn}
+                  onPress={(e) => handleDeleteTask(task, e)}
+                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                  activeOpacity={0.7}
+                >
+                  <VectorIcon name="trash" size={13} color="#EF4444" />
+                  <Text style={styles.deleteCardBtnText}>Delete</Text>
+                </TouchableOpacity>
               </View>
             </View>
 
@@ -191,6 +188,7 @@ export default function MyTasksScreen() {
                     activeOpacity={0.7}
                   >
                     <VectorIcon name="trash" size={13} color="#EF4444" />
+                    <Text style={styles.deleteCardBtnText}>Delete</Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -324,11 +322,20 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   deleteCardBtn: {
-    padding: 6,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 5,
     borderRadius: 8,
     backgroundColor: '#FEF2F2',
     borderWidth: 1,
     borderColor: '#FECACA',
+  },
+  deleteCardBtnText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#EF4444',
   },
   managerTaskCard: {
     borderColor: '#6366F1',

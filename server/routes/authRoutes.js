@@ -7,5 +7,6 @@ router.post('/send-otp', authController.sendOtp);
 router.post('/verify-otp', authController.verifyOtp);
 router.post('/owner-setup', authController.setupOwnerProfile);
 router.post('/register', authController.register);
+router.put('/profile', authController.updateProfile);
 
 module.exports = router;

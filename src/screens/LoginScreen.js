@@ -136,6 +136,7 @@ export default function LoginScreen({ onBack }) {
     try {
       const res = await sendOtp(cleanAdminMobile);
       if (res && res.success) {
+        if (res.otp) setAdminOtp(res.otp);
         setMode('ADMIN_OTP');
       } else {
         setIdError(res?.message || 'Failed to dispatch verification code.');
@@ -290,7 +291,7 @@ export default function LoginScreen({ onBack }) {
               Verify Owner Mobile
             </Text>
             <Text style={[styles.subtitle, { marginBottom: SPACING.md }]}>
-              We sent a 6-digit verification code to +91 {cleanAdminMobile}. Check your notification in the status bar!
+              We sent a 6-digit verification code to +91 {cleanAdminMobile}.
             </Text>
 
             {/* <View style={styles.notificationNoticeBanner}>
