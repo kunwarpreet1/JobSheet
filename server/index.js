@@ -10,7 +10,7 @@ const deviceRoutes = require('./routes/deviceRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 
 const app = express();
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT || 10000;
 const SUPABASE_URL = process.env.SUPABASE_URL || '';
 
 // Middlewares
@@ -124,6 +124,25 @@ app.use((err, req, res, next) => {
 });
 
 // Start Server – bind to 0.0.0.0 so cloud platforms (Render, etc.) can route traffic
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`🚀 JobSheetFlow Server running on port ${PORT}`);
+const portNumber = Number(PORT) || 10000;
+const server = app.listen(portNumber, '0.0.0.0', () => {
+  console.log(`🚀 JobSheetFlow Server running on port ${portNumber}`);
 });
+
+server.on('error', (err) => {
+  console.error(`❌ Server error on port ${portNumber}:`, err.message);
+});
+
+// If PORT is configured to a non-10000 port (e.g. 5001), also bind 10000 so Render's default scanner always finds it
+if (portNumber !== 10000) {
+  try {
+    const fallbackServer = app.listen(10000, '0.0.0.0', () => {
+      console.log(`🚀 Fallback listener active on port 10000`);
+    });
+    fallbackServer.on('error', () => {
+      // Ignored if port 10000 is unavailable
+    });
+  } catch (e) {
+    // Ignore fallback errors
+  }
+}
