@@ -27,15 +27,15 @@ export default function WorkflowPipeline({
             {isOwner
               ? 'PRODUCTION PIPELINE (ASSIGNED BY MANAGER)'
               : isManager
-              ? 'PRODUCTION PIPELINE (MANAGER SUPERVISION)'
-              : 'MY ASSIGNED TASKS IN THIS JOB SHEET'}
+                ? 'PRODUCTION PIPELINE (MANAGER SUPERVISION)'
+                : 'MY ASSIGNED TASKS IN THIS JOB SHEET'}
           </Text>
           <Text style={styles.headerSub}>
             {isOwner
               ? `${stages.length} Stage(s) Assigned by Manager • Tracking Progress`
               : isManager
-              ? `${stages.length} Sequential Stages Starting with Fabric Order • Sequential Assignment`
-              : `${stages.length} Active / Completed Task(s) Assigned to You`}
+                ? `${stages.length} Sequential Stages Starting with Fabric Order • Sequential Assignment`
+                : `${stages.length} Active / Completed Task(s) Assigned to You`}
           </Text>
         </View>
         {isManager && (
@@ -53,15 +53,15 @@ export default function WorkflowPipeline({
             {isOwner
               ? 'No Tasks Assigned by Manager Yet'
               : isManager
-              ? 'No Stages Available'
-              : 'No Active Tasks Yet'}
+                ? 'No Stages Available'
+                : 'No Active Tasks Yet'}
           </Text>
           <Text style={styles.emptySub}>
             {isOwner
               ? 'Production pipeline stages assigned to workers by the Production Manager will appear here.'
               : isManager
-              ? 'Production stages will appear here.'
-              : 'Tasks assigned to your account will appear here once the Owner or Manager starts them.'}
+                ? 'Production stages will appear here.'
+                : 'Tasks assigned to your account will appear here once the Owner or Manager starts them.'}
           </Text>
         </View>
       ) : (
@@ -83,8 +83,8 @@ export default function WorkflowPipeline({
             const delayStr = isOverdue
               ? calculateDelayText(stage.deadline)
               : isDone && stage.completedAt && stage.deadline && new Date(stage.completedAt) > new Date(stage.deadline)
-              ? calculateDelayText(stage.deadline, stage.completedAt)
-              : null;
+                ? calculateDelayText(stage.deadline, stage.completedAt)
+                : null;
 
             return (
               <View key={stage.id} style={styles.stageRowContainer}>
@@ -130,11 +130,7 @@ export default function WorkflowPipeline({
                           <Text style={styles.assignedPillText}>Your Task</Text>
                         </View>
                       )}
-                      {isUnassigned && canManage && (
-                        <View style={styles.unassignedPill}>
-                          <Text style={styles.unassignedPillText}>Unassigned</Text>
-                        </View>
-                      )}
+
                     </View>
                     <StatusBadge status={stage.status} size="small" />
                   </View>

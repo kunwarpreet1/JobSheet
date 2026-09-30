@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import {
   View,
   Text,
+  Image,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
@@ -14,6 +15,7 @@ import { useApp } from '../context/AppContext';
 import VectorIcon from '../components/VectorIcon';
 import { COLORS, SPACING, isTablet } from '../styles/theme';
 import { getEmployeeTasks, isStatusDone } from '../utils/storage';
+import { pickImageFromGallery, captureImageFromCamera } from '../utils/imagePickerHelper';
 
 export default function ProfileScreen() {
   const {
@@ -26,6 +28,7 @@ export default function ProfileScreen() {
     jobSheets,
     goBack,
     updateUserName,
+    updateUserProfilePhoto,
   } = useApp();
 
   const [showEditModal, setShowEditModal] = useState(false);
@@ -37,6 +40,66 @@ export default function ProfileScreen() {
   const displayMobile = role === 'GUEST'
     ? 'NA'
     : currentUser?.mobileNumber || currentUser?.phone || (isOwner ? '+91 98765 43210' : 'NA');
+
+  const isPhotoUri = (uri) =>
+    typeof uri === 'string' &&
+    (uri.startsWith('http') || uri.startsWith('data:') || uri.startsWith('file:') || uri.startsWith('content:'));
+  const profilePhoto = isPhotoUri(currentUser?.photo)
+    ? currentUser.photo
+    : isPhotoUri(currentUser?.avatar)
+      ? currentUser.avatar
+      : null;
+
+  const displayEmpId = isOwner
+    ? '4821'
+    : currentUser?.employeeId || (role === 'GUEST' ? 'GUEST' : 'NA');
+
+  const handleSelectPhotoOption = () => {
+    const options = [
+      {
+        text: 'Choose from Gallery',
+        onPress: async () => {
+          try {
+            const uri = await pickImageFromGallery();
+            if (uri && updateUserProfilePhoto) {
+              await updateUserProfilePhoto(uri);
+            }
+          } catch (e) {
+            Alert.alert('Error', 'Failed to pick image from gallery.');
+          }
+        },
+      },
+      {
+        text: 'Take Photo',
+        onPress: async () => {
+          try {
+            const uri = await captureImageFromCamera();
+            if (uri && updateUserProfilePhoto) {
+              await updateUserProfilePhoto(uri);
+            }
+          } catch (e) {
+            Alert.alert('Error', 'Failed to capture photo.');
+          }
+        },
+      },
+    ];
+
+    if (profilePhoto) {
+      options.push({
+        text: 'Remove Photo',
+        style: 'destructive',
+        onPress: async () => {
+          if (updateUserProfilePhoto) {
+            await updateUserProfilePhoto(null);
+          }
+        },
+      });
+    }
+
+    options.push({ text: 'Cancel', style: 'cancel' });
+
+    Alert.alert('Profile Photo', 'Add or change your profile picture', options);
+  };
 
   const handleOpenEdit = () => {
     setEditedName(currentUser?.name || activeEmployee || '');
@@ -109,18 +172,35 @@ export default function ProfileScreen() {
       {/* Top Banner Header */}
       <View style={styles.topBanner}>
         <View style={styles.avatarContainer}>
-          <View
+          <TouchableOpacity
             style={[
               styles.avatarCircle,
               isOwner ? styles.avatarOwner : isEmployee ? styles.avatarEmployee : styles.avatarGuest,
             ]}
+            onPress={handleSelectPhotoOption}
+            activeOpacity={0.8}
           >
-            <VectorIcon
-              name={isOwner ? 'shield' : 'user'}
-              size={36}
-              color="#FFFFFF"
-            />
-          </View>
+            {profilePhoto ? (
+              <Image source={{ uri: profilePhoto }} style={styles.avatarImage} />
+            ) : (
+              <VectorIcon
+                name={isOwner ? 'shield' : 'user'}
+                size={36}
+                color="#FFFFFF"
+              />
+            )}
+            <View style={styles.cameraIconBadge}>
+              <VectorIcon name="camera" size={12} color="#FFFFFF" />
+            </View>
+          </TouchableOpacity>
+        </View>
+
+        {/* Just below profile photo: replaced mobile number with EMP ID */}
+        <View style={styles.empIdHeaderTagBox}>
+          <VectorIcon name="tag" size={12} color="#4F46E5" />
+          <Text style={styles.empIdHeaderTagText}>
+            {isOwner ? 'OWNER ID: 4821' : `EMP ID: ${displayEmpId}`}
+          </Text>
         </View>
 
         <View style={styles.nameHeaderRow}>
@@ -166,10 +246,6 @@ export default function ProfileScreen() {
             {isOwner ? 'OWNER' : isEmployee ? 'EMPLOYEE' : 'GUEST'}
           </Text>
         </View>
-
-        <Text style={styles.userEmail}>
-          {displayMobile}
-        </Text>
       </View>
 
       {/* Account Details Card */}
@@ -192,6 +268,18 @@ export default function ProfileScreen() {
               <Text style={styles.editActionBtnText}>Edit</Text>
             </TouchableOpacity>
           )}
+        </View>
+
+        <View style={styles.infoRow}>
+          <View style={styles.infoIconBox}>
+            <VectorIcon name="shield" size={16} color={COLORS.textSecondary} />
+          </View>
+          <View style={styles.infoContent}>
+            <Text style={styles.infoLabel}>Employee ID</Text>
+            <Text style={styles.infoValue}>
+              {displayEmpId}
+            </Text>
+          </View>
         </View>
 
         <View style={styles.infoRow}>
@@ -463,6 +551,47 @@ const styles = StyleSheet.create({
   },
   avatarGuest: {
     backgroundColor: '#64748B',
+  },
+  avatarImage: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+  },
+  cameraIconBadge: {
+    position: 'absolute',
+    bottom: -2,
+    right: -2,
+    backgroundColor: '#4F46E5',
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#FFFFFF',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3,
+    elevation: 4,
+  },
+  empIdHeaderTagBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    backgroundColor: '#EEF2FF',
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#C7D2FE',
+    marginBottom: 8,
+  },
+  empIdHeaderTagText: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#4F46E5',
+    letterSpacing: 0.5,
   },
   userName: {
     fontSize: isTablet ? 22 : 18,

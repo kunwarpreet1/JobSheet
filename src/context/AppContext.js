@@ -1848,6 +1848,24 @@ export function AppProvider({ children }) {
     return { success: true };
   };
 
+  // Update Current User Profile Photo
+  const updateUserProfilePhoto = async (photoUri) => {
+    const updatedUser = {
+      ...currentUser,
+      avatar: photoUri,
+      photo: photoUri,
+    };
+
+    setCurrentUser(updatedUser);
+    saveSessionUser(updatedUser);
+
+    try {
+      await AsyncStorage.setItem('jobsheetflow_user_photo', photoUri || '');
+    } catch (e) {}
+
+    return { success: true };
+  };
+
   // Remove all assigned stages from a Job Sheet (Owner only)
   const removeAllStagesFromJobSheet = async (jobSheetId) => {
     if (role !== 'OWNER') return;
@@ -1945,6 +1963,7 @@ export function AppProvider({ children }) {
         addJobSheet,
         updateJobSheetManager,
         updateUserName,
+        updateUserProfilePhoto,
         deleteJobSheet,
         deleteStageFromJobSheet,
         removeAllStagesFromJobSheet,
