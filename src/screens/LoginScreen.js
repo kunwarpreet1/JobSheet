@@ -4,13 +4,12 @@ import {
   Text,
   TouchableOpacity,
   TextInput,
+  ScrollView,
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
   StyleSheet,
   BackHandler,
-  Animated,
-  Easing,
 } from 'react-native';
 import VectorIcon from '../components/VectorIcon';
 import { useApp } from '../context/AppContext';
@@ -58,27 +57,6 @@ export default function LoginScreen({ onBack }) {
   const [adminTimer, setAdminTimer] = useState(30);
   const [adminCanResend, setAdminCanResend] = useState(false);
   const timerRef = useRef(null);
-
-  // Smooth entrance animation from splash screen
-  const screenFadeAnim = useRef(new Animated.Value(0)).current;
-  const screenSlideAnim = useRef(new Animated.Value(20)).current;
-
-  useEffect(() => {
-    Animated.parallel([
-      Animated.timing(screenFadeAnim, {
-        toValue: 1,
-        duration: 450,
-        useNativeDriver: true,
-      }),
-      Animated.timing(screenSlideAnim, {
-        toValue: 0,
-        duration: 450,
-        easing: Easing.out(Easing.cubic),
-        useNativeDriver: true,
-      }),
-    ]).start();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const cleanId = employeeId.replace(/[^0-9]/g, '').slice(0, 4);
   const isValidId = cleanId.length === 4;
@@ -208,13 +186,9 @@ export default function LoginScreen({ onBack }) {
       style={styles.root}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <Animated.ScrollView
+      <ScrollView
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
-        style={{
-          opacity: screenFadeAnim,
-          transform: [{ translateY: screenSlideAnim }],
-        }}
       >
 
 
@@ -469,7 +443,7 @@ export default function LoginScreen({ onBack }) {
             </View>
           </View>
         )}
-      </Animated.ScrollView>
+      </ScrollView>
     </KeyboardAvoidingView>
   );
 }

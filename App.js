@@ -97,11 +97,14 @@ function MainContainer() {
     }
   }, []);
 
-  // Cinematic Netflix-Style Paper Boat Splash Screen
+  // Cinematic Paper Boat Splash Screen
   if (!isSplashDone || isSessionRestoring) {
     return (
       <View style={styles.splashRoot}>
-        <StatusBar barStyle="light-content" backgroundColor="#070B14" translucent />
+        <StatusBar
+          barStyle={isDarkMode ? 'light-content' : 'dark-content'}
+          backgroundColor="#FFFBF7"
+        />
         <SplashScreen
           onFinish={() => {
             setIsSplashDone(true);
@@ -292,7 +295,7 @@ function MainContainer() {
 const styles = StyleSheet.create({
   splashRoot: {
     flex: 1,
-    backgroundColor: '#070B14',
+    backgroundColor: '#FFFBF7',
   },
   root: {
     flex: 1,

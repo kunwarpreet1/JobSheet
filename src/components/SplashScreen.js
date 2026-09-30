@@ -20,9 +20,9 @@ const { height: SCREEN_HEIGHT } = Dimensions.get('screen');
 
 /**
  * 3D Origami Paper Boat SVG
- * Clean geometric paper folds with authentic light/shadow facets
+ * Clean geometric paper folds tailored for warm light (#FFFBF7) canvas
  */
-function PaperBoat({ size = 110, accentColor = '#6366F1' }) {
+function PaperBoat({ size = 126, accentColor = '#6366F1' }) {
   const width = size;
   const height = size * 0.72;
 
@@ -31,24 +31,24 @@ function PaperBoat({ size = 110, accentColor = '#6366F1' }) {
       <Defs>
         <LinearGradient id="sailLight" x1="0%" y1="0%" x2="100%" y2="100%">
           <Stop offset="0%" stopColor="#FFFFFF" />
-          <Stop offset="100%" stopColor="#E0E7FF" />
+          <Stop offset="100%" stopColor="#F8FAFC" />
         </LinearGradient>
         <LinearGradient id="sailShadow" x1="0%" y1="0%" x2="100%" y2="100%">
-          <Stop offset="0%" stopColor="#CBD5E1" />
-          <Stop offset="100%" stopColor="#94A3B8" />
+          <Stop offset="0%" stopColor="#E2E8F0" />
+          <Stop offset="100%" stopColor="#CBD5E1" />
         </LinearGradient>
         <LinearGradient id="hullFront" x1="0%" y1="0%" x2="100%" y2="0%">
-          <Stop offset="0%" stopColor="#F8FAFC" />
-          <Stop offset="100%" stopColor="#E2E8F0" />
+          <Stop offset="0%" stopColor="#FFFFFF" />
+          <Stop offset="100%" stopColor="#F1F5F9" />
         </LinearGradient>
         <LinearGradient id="hullDark" x1="0%" y1="0%" x2="100%" y2="0%">
-          <Stop offset="0%" stopColor="#94A3B8" />
-          <Stop offset="100%" stopColor="#64748B" />
+          <Stop offset="0%" stopColor="#CBD5E1" />
+          <Stop offset="100%" stopColor="#94A3B8" />
         </LinearGradient>
       </Defs>
 
       {/* 1. Cockpit Inner Depth Fold */}
-      <Polygon points="26,42 50,34 74,42 50,42" fill="#475569" opacity={0.75} />
+      <Polygon points="26,42 50,34 74,42 50,42" fill="#64748B" opacity={0.5} />
 
       {/* 2. Left Sail (Folded shadow side) */}
       <Polygon points="50,8 24,42 50,42" fill="url(#sailShadow)" />
@@ -57,16 +57,16 @@ function PaperBoat({ size = 110, accentColor = '#6366F1' }) {
       <Polygon points="50,8 76,42 50,42" fill="url(#sailLight)" />
 
       {/* 4. Center Crease Line */}
-      <Line x1="50" y1="8" x2="50" y2="42" stroke="#64748B" strokeWidth="0.8" opacity={0.6} />
+      <Line x1="50" y1="8" x2="50" y2="42" stroke="#94A3B8" strokeWidth="0.8" opacity={0.6} />
 
       {/* 5. Origami Sail Peak Accent Flag */}
       <Polygon points="50,8 57,13 50,17" fill={accentColor} />
 
       {/* 6. Hull Far-Left Point */}
-      <Polygon points="6,42 26,42 18,62" fill="#94A3B8" />
+      <Polygon points="6,42 26,42 18,62" fill="#CBD5E1" />
 
       {/* 7. Hull Mid-Left Panel */}
-      <Polygon points="26,42 50,42 50,64 18,62" fill="url(#hullDark)" opacity={0.85} />
+      <Polygon points="26,42 50,42 50,64 18,62" fill="url(#hullDark)" opacity={0.9} />
 
       {/* 8. Hull Mid-Right Panel (Highlight) */}
       <Polygon points="50,42 74,42 82,62 50,64" fill="url(#hullFront)" />
@@ -75,31 +75,31 @@ function PaperBoat({ size = 110, accentColor = '#6366F1' }) {
       <Polygon points="74,42 94,42 82,62" fill="#FFFFFF" />
 
       {/* 10. Crisp Paper Fold Edge Lines */}
-      <Line x1="6" y1="42" x2="94" y2="42" stroke="#FFFFFF" strokeWidth="0.8" opacity={0.7} />
-      <Line x1="18" y1="62" x2="50" y2="64" stroke="#64748B" strokeWidth="0.8" opacity={0.5} />
-      <Line x1="50" y1="64" x2="82" y2="62" stroke="#CBD5E1" strokeWidth="0.8" opacity={0.7} />
+      <Line x1="6" y1="42" x2="94" y2="42" stroke="#CBD5E1" strokeWidth="1" opacity={0.8} />
+      <Line x1="18" y1="62" x2="50" y2="64" stroke="#94A3B8" strokeWidth="0.8" opacity={0.5} />
+      <Line x1="50" y1="64" x2="82" y2="62" stroke="#E2E8F0" strokeWidth="0.8" opacity={0.8} />
     </Svg>
   );
 }
 
 /**
- * Cinematic Netflix-Style Paper Boat Splash Screen
- * 1. Gentle float on glowing water
- * 2. Ignition / speed lines gather beneath
- * 3. Hyperspeed rocket blast towards the top
- * 4. Netflix-style camera zoom & light burst transition into Login
+ * Paper Boat Splash Screen
+ * Seamless light theme (#FFFBF7) matching the entire app:
+ * 1. Boat floats gently on concentric water ripples
+ * 2. Speed trails form behind keel
+ * 3. Boat rockets UPWARDS off the top of the screen at high speed
+ * 4. Screen smoothly unmounts to reveal Login screen with ZERO blink / flicker
  */
 export default function SplashScreen({ onFinish }) {
   // Animation values
   const boatY = useRef(new Animated.Value(0)).current;
-  const boatX = useRef(new Animated.Value(0)).current;
   const boatScale = useRef(new Animated.Value(0.7)).current;
   const boatScaleY = useRef(new Animated.Value(1)).current;
   const boatRotate = useRef(new Animated.Value(0)).current;
   const boatOpacity = useRef(new Animated.Value(0)).current;
 
   // Ripples under the boat
-  const rippleScale1 = useRef(new Animated.Value(0.4)).current;
+  const rippleScale1 = useRef(new Animated.Value(0.3)).current;
   const rippleOpacity1 = useRef(new Animated.Value(0.8)).current;
   const rippleScale2 = useRef(new Animated.Value(0.2)).current;
   const rippleOpacity2 = useRef(new Animated.Value(0)).current;
@@ -111,12 +111,9 @@ export default function SplashScreen({ onFinish }) {
 
   // Title & branding
   const titleOpacity = useRef(new Animated.Value(0)).current;
-  const titleY = useRef(new Animated.Value(20)).current;
+  const titleY = useRef(new Animated.Value(16)).current;
 
-  // Netflix-style burst & screen exit
-  const flashScale = useRef(new Animated.Value(0.01)).current;
-  const flashOpacity = useRef(new Animated.Value(0)).current;
-  const screenScale = useRef(new Animated.Value(1)).current;
+  // Overall container fade-out on completion
   const screenOpacity = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
@@ -124,7 +121,7 @@ export default function SplashScreen({ onFinish }) {
     Animated.parallel([
       Animated.timing(boatOpacity, {
         toValue: 1,
-        duration: 500,
+        duration: 450,
         useNativeDriver: true,
       }),
       Animated.spring(boatScale, {
@@ -135,14 +132,14 @@ export default function SplashScreen({ onFinish }) {
       }),
       Animated.timing(titleOpacity, {
         toValue: 1,
-        duration: 600,
-        delay: 200,
+        duration: 500,
+        delay: 150,
         useNativeDriver: true,
       }),
       Animated.timing(titleY, {
         toValue: 0,
-        duration: 600,
-        delay: 200,
+        duration: 500,
+        delay: 150,
         easing: Easing.out(Easing.cubic),
         useNativeDriver: true,
       }),
@@ -152,172 +149,152 @@ export default function SplashScreen({ onFinish }) {
     Animated.parallel([
       Animated.timing(rippleScale1, {
         toValue: 2.2,
-        duration: 900,
+        duration: 850,
         easing: Easing.out(Easing.ease),
         useNativeDriver: true,
       }),
       Animated.timing(rippleOpacity1, {
         toValue: 0,
-        duration: 900,
+        duration: 850,
         useNativeDriver: true,
       }),
     ]).start();
 
-    setTimeout(() => {
+    const rippleTimer = setTimeout(() => {
       Animated.parallel([
         Animated.timing(rippleOpacity2, {
-          toValue: 0.7,
-          duration: 200,
+          toValue: 0.6,
+          duration: 180,
           useNativeDriver: true,
         }),
         Animated.timing(rippleScale2, {
           toValue: 2.0,
-          duration: 800,
+          duration: 750,
           easing: Easing.out(Easing.ease),
           useNativeDriver: true,
         }),
         Animated.timing(rippleOpacity2, {
           toValue: 0,
-          duration: 800,
+          duration: 750,
           useNativeDriver: true,
         }),
       ]).start();
-    }, 350);
+    }, 300);
 
     // Stage 1c: Gentle ocean bobbing (rocking back & forth)
     Animated.sequence([
       Animated.timing(boatRotate, {
         toValue: -3,
-        duration: 350,
+        duration: 300,
         easing: Easing.inOut(Easing.quad),
         useNativeDriver: true,
       }),
       Animated.timing(boatRotate, {
         toValue: 3,
-        duration: 350,
+        duration: 300,
         easing: Easing.inOut(Easing.quad),
         useNativeDriver: true,
       }),
       Animated.timing(boatRotate, {
         toValue: 0,
-        duration: 250,
+        duration: 200,
         useNativeDriver: true,
       }),
     ]).start();
 
-    // Stage 2: Speed charge & thruster trails (starts at 950ms)
+    // Stage 2: Speed charge & thruster trails (starts at 800ms)
     const timer1 = setTimeout(() => {
-      // Boat tilts slightly back like launching
       Animated.parallel([
         Animated.timing(boatRotate, {
-          toValue: -6,
-          duration: 300,
+          toValue: -5,
+          duration: 250,
           easing: Easing.in(Easing.quad),
           useNativeDriver: true,
         }),
         Animated.timing(speedLinesOpacity, {
           toValue: 1,
-          duration: 200,
+          duration: 180,
           useNativeDriver: true,
         }),
         Animated.timing(speedLinesY, {
-          toValue: 120,
-          duration: 600,
+          toValue: 140,
+          duration: 550,
           easing: Easing.linear,
           useNativeDriver: true,
         }),
         Animated.timing(glowTrailScale, {
-          toValue: 1.5,
-          duration: 400,
-          useNativeDriver: true,
-        }),
-        Animated.timing(titleOpacity, {
-          toValue: 0.3,
-          duration: 300,
+          toValue: 1.4,
+          duration: 350,
           useNativeDriver: true,
         }),
       ]).start();
-    }, 900);
+    }, 750);
 
-    // Stage 3: Hyperspeed upward rocket blast (starts at 1350ms)
+    // Stage 3: Hyperspeed upward rocket blast (starts at 1150ms)
     const timer2 = setTimeout(() => {
       Animated.parallel([
-        // Boat shoots straight UP with explosive acceleration
+        // Boat shoots straight UP with high-speed acceleration
         Animated.timing(boatY, {
-          toValue: -SCREEN_HEIGHT * 0.9,
-          duration: 550,
+          toValue: -SCREEN_HEIGHT * 0.95,
+          duration: 500,
           easing: Easing.bezier(0.4, 0, 0.2, 1),
           useNativeDriver: true,
         }),
-        // Aerodynamic stretch along Y axis (motion blur effect)
+        // Aerodynamic stretch along Y axis (speed blur effect)
         Animated.sequence([
           Animated.timing(boatScaleY, {
-            toValue: 1.6,
-            duration: 250,
+            toValue: 1.5,
+            duration: 220,
             useNativeDriver: true,
           }),
           Animated.timing(boatScaleY, {
-            toValue: 0.8,
-            duration: 300,
+            toValue: 0.9,
+            duration: 280,
             useNativeDriver: true,
           }),
         ]),
-        // Scale grows as it zooms toward camera then exits
+        // Scale dynamics during flight
         Animated.sequence([
           Animated.timing(boatScale, {
-            toValue: 1.35,
-            duration: 250,
+            toValue: 1.25,
+            duration: 220,
             useNativeDriver: true,
           }),
           Animated.timing(boatScale, {
-            toValue: 0.4,
-            duration: 300,
+            toValue: 0.5,
+            duration: 280,
             useNativeDriver: true,
           }),
         ]),
         Animated.timing(boatRotate, {
           toValue: 0,
-          duration: 200,
+          duration: 150,
+          useNativeDriver: true,
+        }),
+        // Title smoothly fades away as boat blasts off
+        Animated.timing(titleOpacity, {
+          toValue: 0,
+          duration: 250,
           useNativeDriver: true,
         }),
       ]).start();
-    }, 1300);
+    }, 1100);
 
-    // Stage 4: Netflix-Style Portal Bloom & Reveal Transition (starts at 1800ms)
+    // Stage 4: Seamless fade into LoginScreen (starts at 1550ms)
+    // Both screens share #FFFBF7 background, so this is 100% flicker-free!
     const timer3 = setTimeout(() => {
-      Animated.parallel([
-        // Luminous flash bloom
-        Animated.timing(flashOpacity, {
-          toValue: 1,
-          duration: 200,
-          useNativeDriver: true,
-        }),
-        Animated.timing(flashScale, {
-          toValue: 30,
-          duration: 450,
-          easing: Easing.out(Easing.cubic),
-          useNativeDriver: true,
-        }),
-        // Overall splash screen scales up like entering a portal
-        Animated.timing(screenScale, {
-          toValue: 1.15,
-          duration: 450,
-          easing: Easing.out(Easing.quad),
-          useNativeDriver: true,
-        }),
-        // Fade out splash to reveal the Login screen
-        Animated.timing(screenOpacity, {
-          toValue: 0,
-          duration: 350,
-          delay: 150,
-          useNativeDriver: true,
-        }),
-      ]).start(() => {
+      Animated.timing(screenOpacity, {
+        toValue: 0,
+        duration: 300,
+        easing: Easing.out(Easing.quad),
+        useNativeDriver: true,
+      }).start(() => {
         if (onFinish) onFinish();
       });
-    }, 1800);
+    }, 1550);
 
     return () => {
+      clearTimeout(rippleTimer);
       clearTimeout(timer1);
       clearTimeout(timer2);
       clearTimeout(timer3);
@@ -336,13 +313,12 @@ export default function SplashScreen({ onFinish }) {
         styles.container,
         {
           opacity: screenOpacity,
-          transform: [{ scale: screenScale }],
         },
       ]}
     >
-      <StatusBar barStyle="light-content" backgroundColor="#070B14" translucent />
+      <StatusBar barStyle="dark-content" backgroundColor="#FFFBF7" />
 
-      {/* Central Animation Stage (Centers the boat and all wave/speed effects in the exact screen middle) */}
+      {/* Central Animation Stage (Centers boat & effects in the true center of the screen) */}
       <View style={styles.centerStage}>
         {/* Ambient background glow orb */}
         <View style={styles.ambientGlow} />
@@ -386,7 +362,7 @@ export default function SplashScreen({ onFinish }) {
           />
         </View>
 
-        {/* Speed Lines trailing behind */}
+        {/* Speed Lines trailing behind boat */}
         <Animated.View
           style={[
             styles.speedLinesContainer,
@@ -412,7 +388,6 @@ export default function SplashScreen({ onFinish }) {
               opacity: boatOpacity,
               transform: [
                 { translateY: boatY },
-                { translateX: boatX },
                 { scale: boatScale },
                 { scaleY: boatScaleY },
                 { rotate: spin },
@@ -420,20 +395,20 @@ export default function SplashScreen({ onFinish }) {
             },
           ]}
         >
-          {/* Glow halo right at the keel */}
+          {/* Subtle warm glow halo right at the keel */}
           <Animated.View
             style={[
               styles.boatGlow,
               {
                 transform: [{ scale: glowTrailScale }],
                 opacity: glowTrailScale.interpolate({
-                  inputRange: [0, 1.5],
-                  outputRange: [0, 0.8],
+                  inputRange: [0, 1.4],
+                  outputRange: [0, 0.35],
                 }),
               },
             ]}
           />
-          <PaperBoat size={124} accentColor="#6366F1" />
+          <PaperBoat size={126} accentColor="#6366F1" />
         </Animated.View>
       </View>
 
@@ -456,18 +431,6 @@ export default function SplashScreen({ onFinish }) {
           <View style={styles.progressBarGlow} />
         </View>
       </Animated.View>
-
-      {/* Netflix-Style Expanding White Flare / Flash on Exit */}
-      <Animated.View
-        pointerEvents="none"
-        style={[
-          styles.flashBloom,
-          {
-            opacity: flashOpacity,
-            transform: [{ scale: flashScale }],
-          },
-        ]}
-      />
     </Animated.View>
   );
 }
@@ -477,7 +440,7 @@ const styles = StyleSheet.create({
     flex: 1,
     width: '100%',
     height: '100%',
-    backgroundColor: '#070B14',
+    backgroundColor: '#FFFBF7',
     justifyContent: 'center',
     alignItems: 'center',
     overflow: 'hidden',
@@ -490,11 +453,11 @@ const styles = StyleSheet.create({
   },
   ambientGlow: {
     position: 'absolute',
-    width: 300,
-    height: 300,
-    borderRadius: 150,
-    backgroundColor: '#3B82F6',
-    opacity: 0.16,
+    width: 280,
+    height: 280,
+    borderRadius: 140,
+    backgroundColor: '#EEF2FF',
+    opacity: 0.9,
   },
   rippleContainer: {
     position: 'absolute',
@@ -505,22 +468,22 @@ const styles = StyleSheet.create({
   rippleRing: {
     position: 'absolute',
     width: 140,
-    height: 60,
+    height: 55,
     borderRadius: 70,
     borderWidth: 1.5,
-    borderColor: '#60A5FA',
+    borderColor: 'rgba(99, 102, 241, 0.32)',
     backgroundColor: 'transparent',
   },
   rippleRingSecondary: {
     width: 180,
-    height: 75,
+    height: 70,
     borderRadius: 90,
-    borderColor: '#818CF8',
+    borderColor: 'rgba(59, 130, 246, 0.22)',
     borderWidth: 1,
   },
   speedLinesContainer: {
     position: 'absolute',
-    bottom: 10,
+    bottom: 15,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -528,39 +491,39 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: 2.5,
     borderRadius: 2,
-    backgroundColor: '#93C5FD',
+    backgroundColor: '#6366F1',
   },
   speedLine1: {
     height: 70,
     left: -24,
-    opacity: 0.6,
+    opacity: 0.45,
   },
   speedLine2: {
     height: 110,
     left: -8,
-    opacity: 0.9,
-    backgroundColor: '#60A5FA',
+    opacity: 0.8,
+    backgroundColor: '#3B82F6',
   },
   speedLine3: {
     height: 130,
     left: 8,
-    opacity: 0.9,
+    opacity: 0.85,
     backgroundColor: '#818CF8',
   },
   speedLine4: {
     height: 75,
     left: 24,
-    opacity: 0.6,
+    opacity: 0.45,
   },
   speedLine5: {
     height: 45,
     left: -40,
-    opacity: 0.3,
+    opacity: 0.25,
   },
   speedLine6: {
     height: 50,
     left: 40,
-    opacity: 0.3,
+    opacity: 0.25,
   },
   boatWrapper: {
     alignItems: 'center',
@@ -573,15 +536,15 @@ const styles = StyleSheet.create({
     width: 90,
     height: 35,
     borderRadius: 20,
-    backgroundColor: '#6366F1',
-    opacity: 0.4,
+    backgroundColor: '#818CF8',
+    opacity: 0.3,
   },
   boatShadow: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.35,
-    shadowRadius: 16,
-    elevation: 8,
+    shadowColor: '#475569',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.16,
+    shadowRadius: 14,
+    elevation: 6,
   },
   titleContainer: {
     position: 'absolute',
@@ -592,11 +555,8 @@ const styles = StyleSheet.create({
   brandTitle: {
     fontSize: 32,
     fontWeight: '900',
-    color: '#FFFFFF',
+    color: '#0F172A',
     letterSpacing: 1.5,
-    textShadowColor: 'rgba(99, 102, 241, 0.4)',
-    textShadowOffset: { width: 0, height: 4 },
-    textShadowRadius: 12,
   },
   brandAccent: {
     color: '#6366F1',
@@ -605,15 +565,15 @@ const styles = StyleSheet.create({
     marginTop: 8,
     fontSize: 13,
     fontWeight: '600',
-    color: '#94A3B8',
+    color: '#64748B',
     letterSpacing: 2,
     textTransform: 'uppercase',
   },
   progressBarWrapper: {
-    marginTop: 22,
+    marginTop: 20,
     width: 110,
     height: 3,
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    backgroundColor: 'rgba(99, 102, 241, 0.12)',
     borderRadius: 2,
     overflow: 'hidden',
   },
@@ -622,14 +582,5 @@ const styles = StyleSheet.create({
     height: 3,
     borderRadius: 2,
     backgroundColor: '#6366F1',
-  },
-  flashBloom: {
-    position: 'absolute',
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: '#FFFFFF',
-    top: '30%',
-    zIndex: 99999,
   },
 });
