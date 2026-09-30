@@ -16,7 +16,7 @@ import Svg, {
   Stop,
 } from 'react-native-svg';
 
-const { height: SCREEN_HEIGHT } = Dimensions.get('window');
+const { height: SCREEN_HEIGHT } = Dimensions.get('screen');
 
 /**
  * 3D Origami Paper Boat SVG
@@ -340,99 +340,102 @@ export default function SplashScreen({ onFinish }) {
         },
       ]}
     >
-      <StatusBar barStyle="light-content" backgroundColor="#070B14" />
+      <StatusBar barStyle="light-content" backgroundColor="#070B14" translucent />
 
-      {/* Ambient background glow orb */}
-      <View style={styles.ambientGlow} />
+      {/* Central Animation Stage (Centers the boat and all wave/speed effects in the exact screen middle) */}
+      <View style={styles.centerStage}>
+        {/* Ambient background glow orb */}
+        <View style={styles.ambientGlow} />
 
-      {/* Ripple Effects behind boat */}
-      <View style={styles.rippleContainer}>
+        {/* Ripple Effects directly beneath boat keel */}
+        <View style={styles.rippleContainer}>
+          <Animated.View
+            style={[
+              styles.rippleRing,
+              {
+                transform: [
+                  { scaleX: rippleScale1 },
+                  {
+                    scaleY: rippleScale1.interpolate({
+                      inputRange: [0, 3],
+                      outputRange: [0, 0.85],
+                    }),
+                  },
+                ],
+                opacity: rippleOpacity1,
+              },
+            ]}
+          />
+          <Animated.View
+            style={[
+              styles.rippleRing,
+              styles.rippleRingSecondary,
+              {
+                transform: [
+                  { scaleX: rippleScale2 },
+                  {
+                    scaleY: rippleScale2.interpolate({
+                      inputRange: [0, 3],
+                      outputRange: [0, 0.85],
+                    }),
+                  },
+                ],
+                opacity: rippleOpacity2,
+              },
+            ]}
+          />
+        </View>
+
+        {/* Speed Lines trailing behind */}
         <Animated.View
           style={[
-            styles.rippleRing,
+            styles.speedLinesContainer,
             {
-              transform: [
-                { scaleX: rippleScale1 },
-                {
-                  scaleY: rippleScale1.interpolate({
-                    inputRange: [0, 3],
-                    outputRange: [0, 0.9],
-                  }),
-                },
-              ],
-              opacity: rippleOpacity1,
+              opacity: speedLinesOpacity,
+              transform: [{ translateY: speedLinesY }],
             },
           ]}
-        />
+        >
+          <View style={[styles.speedLine, styles.speedLine1]} />
+          <View style={[styles.speedLine, styles.speedLine2]} />
+          <View style={[styles.speedLine, styles.speedLine3]} />
+          <View style={[styles.speedLine, styles.speedLine4]} />
+          <View style={[styles.speedLine, styles.speedLine5]} />
+          <View style={[styles.speedLine, styles.speedLine6]} />
+        </Animated.View>
+
+        {/* Animated Paper Boat */}
         <Animated.View
           style={[
-            styles.rippleRing,
-            styles.rippleRingSecondary,
+            styles.boatWrapper,
             {
+              opacity: boatOpacity,
               transform: [
-                { scaleX: rippleScale2 },
-                {
-                  scaleY: rippleScale2.interpolate({
-                    inputRange: [0, 3],
-                    outputRange: [0, 0.9],
-                  }),
-                },
+                { translateY: boatY },
+                { translateX: boatX },
+                { scale: boatScale },
+                { scaleY: boatScaleY },
+                { rotate: spin },
               ],
-              opacity: rippleOpacity2,
             },
           ]}
-        />
+        >
+          {/* Glow halo right at the keel */}
+          <Animated.View
+            style={[
+              styles.boatGlow,
+              {
+                transform: [{ scale: glowTrailScale }],
+                opacity: glowTrailScale.interpolate({
+                  inputRange: [0, 1.5],
+                  outputRange: [0, 0.8],
+                }),
+              },
+            ]}
+          />
+          <PaperBoat size={124} accentColor="#6366F1" />
+        </Animated.View>
       </View>
-
-      {/* Speed Lines trailing behind */}
-      <Animated.View
-        style={[
-          styles.speedLinesContainer,
-          {
-            opacity: speedLinesOpacity,
-            transform: [{ translateY: speedLinesY }],
-          },
-        ]}
-      >
-        <View style={[styles.speedLine, styles.speedLine1]} />
-        <View style={[styles.speedLine, styles.speedLine2]} />
-        <View style={[styles.speedLine, styles.speedLine3]} />
-        <View style={[styles.speedLine, styles.speedLine4]} />
-        <View style={[styles.speedLine, styles.speedLine5]} />
-        <View style={[styles.speedLine, styles.speedLine6]} />
-      </Animated.View>
-
-      {/* Animated Paper Boat */}
-      <Animated.View
-        style={[
-          styles.boatWrapper,
-          {
-            opacity: boatOpacity,
-            transform: [
-              { translateY: boatY },
-              { translateX: boatX },
-              { scale: boatScale },
-              { scaleY: boatScaleY },
-              { rotate: spin },
-            ],
-          },
-        ]}
-      >
-        {/* Glow halo right at the keel */}
-        <Animated.View
-          style={[
-            styles.boatGlow,
-            {
-              transform: [{ scale: glowTrailScale }],
-              opacity: glowTrailScale.interpolate({
-                inputRange: [0, 1.5],
-                outputRange: [0, 0.8],
-              }),
-            },
-          ]}
-        />
-        <PaperBoat size={118} accentColor="#6366F1" />
-      </Animated.View>
 
       {/* App Branding & Tagline */}
       <Animated.View
@@ -471,25 +474,31 @@ export default function SplashScreen({ onFinish }) {
 
 const styles = StyleSheet.create({
   container: {
-    ...StyleSheet.absoluteFillObject,
+    flex: 1,
+    width: '100%',
+    height: '100%',
     backgroundColor: '#070B14',
     justifyContent: 'center',
     alignItems: 'center',
-    zIndex: 999999,
     overflow: 'hidden',
+  },
+  centerStage: {
+    width: '100%',
+    height: 260,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   ambientGlow: {
     position: 'absolute',
-    width: 320,
-    height: 320,
-    borderRadius: 160,
+    width: 300,
+    height: 300,
+    borderRadius: 150,
     backgroundColor: '#3B82F6',
-    opacity: 0.12,
-    top: '36%',
+    opacity: 0.16,
   },
   rippleContainer: {
     position: 'absolute',
-    top: '49%',
+    bottom: 30,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -511,7 +520,7 @@ const styles = StyleSheet.create({
   },
   speedLinesContainer: {
     position: 'absolute',
-    top: '52%',
+    bottom: 10,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -576,8 +585,9 @@ const styles = StyleSheet.create({
   },
   titleContainer: {
     position: 'absolute',
-    bottom: 90,
+    bottom: 75,
     alignItems: 'center',
+    width: '100%',
   },
   brandTitle: {
     fontSize: 32,

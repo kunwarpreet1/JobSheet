@@ -100,11 +100,14 @@ function MainContainer() {
   // Cinematic Netflix-Style Paper Boat Splash Screen
   if (!isSplashDone || isSessionRestoring) {
     return (
-      <SplashScreen
-        onFinish={() => {
-          setIsSplashDone(true);
-        }}
-      />
+      <View style={styles.splashRoot}>
+        <StatusBar barStyle="light-content" backgroundColor="#070B14" translucent />
+        <SplashScreen
+          onFinish={() => {
+            setIsSplashDone(true);
+          }}
+        />
+      </View>
     );
   }
 
@@ -287,6 +290,10 @@ function MainContainer() {
 }
 
 const styles = StyleSheet.create({
+  splashRoot: {
+    flex: 1,
+    backgroundColor: '#070B14',
+  },
   root: {
     flex: 1,
     backgroundColor: '#FFFFFF',
