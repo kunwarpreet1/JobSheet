@@ -171,7 +171,7 @@ export default function LoginScreen({ onBack }) {
         // Complete login as Owner directly
         await loginByEmployeeId('4821');
       } else {
-        setIdError(res?.message || 'Invalid verification code. Please check the notification banner.');
+        setIdError(res?.message || 'Invalid verification code. Please check your notifications.');
       }
     } catch (err) {
       setIdError(err.message || 'Verification failed. Please try again.');
@@ -290,7 +290,7 @@ export default function LoginScreen({ onBack }) {
               Verify Owner Mobile
             </Text>
             <Text style={[styles.subtitle, { marginBottom: SPACING.md }]}>
-              We sent a 6-digit verification code to +91 {cleanAdminMobile}. Check the notification banner at the top!
+              We sent a 6-digit verification code to +91 {cleanAdminMobile}. Check your notification in the status bar!
             </Text>
 
             {/* <View style={styles.notificationNoticeBanner}>

@@ -171,7 +171,7 @@ export default function RegisterScreen({ onBack }) {
         setRegisteredEmployee(res.employee);
         setStep('SUCCESS');
       } else {
-        setErrorMsg(res.message || 'Invalid verification code. Please check the notification banner.');
+        setErrorMsg(res.message || 'Invalid verification code. Please check your notifications.');
       }
     } catch (err) {
       setErrorMsg(err.message || 'Verification failed. Please try again.');
