@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Platform,
   StatusBar,
@@ -18,6 +18,7 @@ import Header from './src/components/Header';
 import BottomNav from './src/components/BottomNav';
 import SidebarNav from './src/components/SidebarNav';
 import VectorIcon from './src/components/VectorIcon';
+import SplashScreen from './src/components/SplashScreen';
 
 // Auth Flow Screens
 import LoginScreen from './src/screens/LoginScreen';
@@ -53,6 +54,7 @@ function MainContainer() {
   const isDarkMode = useColorScheme() === 'dark';
   const {
     currentRoute,
+    navigate,
     canGoBack,
     goBack,
     selectedJobSheetId,
@@ -62,6 +64,8 @@ function MainContainer() {
     setActiveBanner,
     isSessionRestoring,
   } = useApp();
+
+  const [isSplashDone, setIsSplashDone] = useState(false);
 
   const themeBgColor = '#FFFFFF';
 
@@ -94,12 +98,14 @@ function MainContainer() {
     }
   }, []);
 
-  if (isSessionRestoring) {
+  // Cinematic Netflix-Style Paper Boat Splash Screen
+  if (!isSplashDone || isSessionRestoring) {
     return (
-      <View style={[styles.root, { backgroundColor: '#FFFBF7', justifyContent: 'center', alignItems: 'center' }]}>
-        <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} backgroundColor="#FFFBF7" />
-        <ActivityIndicator size="large" color="#6366F1" />
-      </View>
+      <SplashScreen
+        onFinish={() => {
+          setIsSplashDone(true);
+        }}
+      />
     );
   }
 
@@ -168,7 +174,7 @@ function MainContainer() {
           onBack={() => BackHandler.exitApp()}
 
 
-/>
+        />
       </View>
     );
   }
@@ -183,7 +189,13 @@ function MainContainer() {
         />
         {renderNotificationBanner()}
         <RegisterScreen
-          onBack={() => navigate('Login')}
+          onBack={() => {
+            if (canGoBack && canGoBack()) {
+              goBack();
+            } else if (navigate) {
+              navigate('Login');
+            }
+          }}
         />
       </View>
     );

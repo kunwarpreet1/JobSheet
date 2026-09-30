@@ -10,6 +10,8 @@ import {
   ActivityIndicator,
   StyleSheet,
   BackHandler,
+  Animated,
+  Easing,
 } from 'react-native';
 import VectorIcon from '../components/VectorIcon';
 import { useApp } from '../context/AppContext';
@@ -55,8 +57,27 @@ export default function LoginScreen({ onBack }) {
   const [adminMobile, setAdminMobile] = useState('');
   const [adminOtp, setAdminOtp] = useState('');
   const [adminTimer, setAdminTimer] = useState(30);
-  const [adminCanResend, setAdminCanResend] = useState(false);
   const timerRef = useRef(null);
+
+  // Smooth entrance animation from splash screen
+  const screenFadeAnim = useRef(new Animated.Value(0)).current;
+  const screenSlideAnim = useRef(new Animated.Value(20)).current;
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(screenFadeAnim, {
+        toValue: 1,
+        duration: 450,
+        useNativeDriver: true,
+      }),
+      Animated.timing(screenSlideAnim, {
+        toValue: 0,
+        duration: 450,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, []);
 
   const cleanId = employeeId.replace(/[^0-9]/g, '').slice(0, 4);
   const isValidId = cleanId.length === 4;
@@ -186,9 +207,13 @@ export default function LoginScreen({ onBack }) {
       style={styles.root}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <ScrollView
+      <Animated.ScrollView
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
+        style={{
+          opacity: screenFadeAnim,
+          transform: [{ translateY: screenSlideAnim }],
+        }}
       >
 
 
@@ -403,17 +428,6 @@ export default function LoginScreen({ onBack }) {
                   <Text style={styles.notFoundSub}>
                     Don't have an Employee ID? Register with your mobile number to generate one:
                   </Text>
-                  <TouchableOpacity
-                    style={styles.registerBannerBtn}
-                    onPress={() => {
-                      setIdError('');
-                      setIdNotFound(false);
-                      navigate('Register');
-                    }}
-                    activeOpacity={0.8}
-                  >
-                    <Text style={styles.registerBannerBtnText}>Register with Mobile Number →</Text>
-                  </TouchableOpacity>
                 </View>
               ) : idError ? (
                 <Text style={styles.errorText}>{idError}</Text>
