@@ -7,7 +7,6 @@ import {
   Text,
   TouchableOpacity,
   BackHandler,
-  ActivityIndicator,
   useColorScheme,
   useWindowDimensions,
   NativeModules,

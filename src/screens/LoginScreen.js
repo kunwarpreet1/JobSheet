@@ -4,7 +4,6 @@ import {
   Text,
   TouchableOpacity,
   TextInput,
-  ScrollView,
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
@@ -57,6 +56,7 @@ export default function LoginScreen({ onBack }) {
   const [adminMobile, setAdminMobile] = useState('');
   const [adminOtp, setAdminOtp] = useState('');
   const [adminTimer, setAdminTimer] = useState(30);
+  const [adminCanResend, setAdminCanResend] = useState(false);
   const timerRef = useRef(null);
 
   // Smooth entrance animation from splash screen
@@ -77,6 +77,7 @@ export default function LoginScreen({ onBack }) {
         useNativeDriver: true,
       }),
     ]).start();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const cleanId = employeeId.replace(/[^0-9]/g, '').slice(0, 4);
@@ -468,7 +469,7 @@ export default function LoginScreen({ onBack }) {
             </View>
           </View>
         )}
-      </ScrollView>
+      </Animated.ScrollView>
     </KeyboardAvoidingView>
   );
 }
